@@ -174,6 +174,8 @@ protected:
     int buildAndSetSimulationValue(bool includeValue, int16_t value, int16_t valueMinimum, int16_t valueMaximum, uint8_t dataLocation[]);
 
 public:
+    Joystick_();
+
     Joystick_(
         uint8_t hidReportId = JOYSTICK_DEFAULT_REPORT_ID,
         uint8_t joystickType = JOYSTICK_TYPE_JOYSTICK,
@@ -189,10 +191,30 @@ public:
         bool includeThrottle = true,
         bool includeAccelerator = true,
         bool includeBrake = true,
-        bool includeSteering = true);
+        bool includeSteering = true
+    );
 
     void begin(bool initAutoSendState = true);
     void end();
+
+    Joystick_& Joystick_::init();
+
+    // Fluent setters
+    Joystick_& hidReportId(uint8_t reportId);
+    Joystick_& joystickType(uint8_t type);
+    Joystick_& buttonCount(uint8_t count);
+    Joystick_& hatSwitchCount(uint8_t count);
+    Joystick_& includeXAxis(bool include = true);
+    Joystick_& includeYAxis(bool include = true);
+    Joystick_& includeZAxis(bool include = true);
+    Joystick_& includeRxAxis(bool include = true);
+    Joystick_& includeRyAxis(bool include = true);
+    Joystick_& includeRzAxis(bool include = true);
+    Joystick_& includeRudder(bool include = true);
+    Joystick_& includeThrottle(bool include = true);
+    Joystick_& includeAccelerator(bool include = true);
+    Joystick_& includeBrake(bool include = true);
+    Joystick_& includeSteering(bool include = true);
 
     // Set Range Functions
     inline void setXAxisRange(int16_t minimum, int16_t maximum)

@@ -63,36 +63,62 @@ Joystick_::Joystick_(
 	bool includeBrake,
 	bool includeSteering)
 {
-    // Set the USB HID Report ID
-    _hidReportId = hidReportId;
-
     // Save Joystick Settings
-    _buttonCount = buttonCount;
-	_hatSwitchCount = hatSwitchCount;
 	_includeAxisFlags = 0;
-	_includeAxisFlags |= (includeXAxis ? JOYSTICK_INCLUDE_X_AXIS : 0);
-	_includeAxisFlags |= (includeYAxis ? JOYSTICK_INCLUDE_Y_AXIS : 0);
-	_includeAxisFlags |= (includeZAxis ? JOYSTICK_INCLUDE_Z_AXIS : 0);
-	_includeAxisFlags |= (includeRxAxis ? JOYSTICK_INCLUDE_RX_AXIS : 0);
-	_includeAxisFlags |= (includeRyAxis ? JOYSTICK_INCLUDE_RY_AXIS : 0);
-	_includeAxisFlags |= (includeRzAxis ? JOYSTICK_INCLUDE_RZ_AXIS : 0);
 	_includeSimulatorFlags = 0;
-	_includeSimulatorFlags |= (includeRudder ? JOYSTICK_INCLUDE_RUDDER : 0);
-	_includeSimulatorFlags |= (includeThrottle ? JOYSTICK_INCLUDE_THROTTLE : 0);
-	_includeSimulatorFlags |= (includeAccelerator ? JOYSTICK_INCLUDE_ACCELERATOR : 0);
-	_includeSimulatorFlags |= (includeBrake ? JOYSTICK_INCLUDE_BRAKE : 0);
-	_includeSimulatorFlags |= (includeSteering ? JOYSTICK_INCLUDE_STEERING : 0);
-	
+
+    this->hidReportId(hidReportId)
+        .joystickType(joystickType)
+        .buttonCount(buttonCount)
+        .hatSwitchCount(hatSwitchCount)
+        .includeXAxis(includeXAxis)
+        .includeYAxis(includeYAxis)
+        .includeZAxis(includeZAxis)
+        .includeRxAxis(includeRxAxis)
+        .includeRyAxis(includeRyAxis)
+        .includeRzAxis(includeRzAxis)
+        .includeRudder(includeRudder)
+        .includeThrottle(includeThrottle)
+        .includeAccelerator(includeAccelerator)
+        .includeBrake(includeBrake)
+        .includeSteering(includeSteering)
+        .init();
+}
+
+Joystick_::Joystick_()
+{
+	_includeAxisFlags = 0;
+	_includeSimulatorFlags = 0;
+
+    this->hidReportId(JOYSTICK_DEFAULT_REPORT_ID)
+        .joystickType(JOYSTICK_TYPE_JOYSTICK)
+        .buttonCount(0)
+        .hatSwitchCount(0)
+        .includeXAxis(false)
+        .includeYAxis(false)
+        .includeZAxis(false)
+        .includeRxAxis(false)
+        .includeRyAxis(false)
+        .includeRzAxis(false)
+        .includeRudder(false)
+        .includeThrottle(false)
+        .includeAccelerator(false)
+        .includeBrake(false)
+        .includeSteering(false);
+}
+
+Joystick_& Joystick_::init()
+{
     // Build Joystick HID Report Description
-	
-	// Button Calculations
+
+    // Button Calculations
 	uint8_t buttonsInLastByte = _buttonCount % 8;
 	uint8_t buttonPaddingBits = 0;
 	if (buttonsInLastByte > 0)
 	{
 		buttonPaddingBits = 8 - buttonsInLastByte;
 	}
-	
+
 	// Axis Calculations
 	uint8_t axisCount = (includeXAxis == true)
 		+  (includeYAxis == true)
@@ -100,13 +126,13 @@ Joystick_::Joystick_(
 		+  (includeRxAxis == true)
 		+  (includeRyAxis == true)
 		+  (includeRzAxis == true);
-		
+
 	uint8_t simulationCount = (includeRudder == true)
 		+ (includeThrottle == true)
 		+ (includeAccelerator == true)
 		+ (includeBrake == true)
-		+ (includeSteering == true); 
-		
+		+ (includeSteering == true);
+
 	static uint8_t tempHidReportDescriptor[150];
 	int hidReportDescriptorSize = 0;
 
@@ -142,7 +168,7 @@ Joystick_::Joystick_(
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x19;
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x01;
 
-		// USAGE_MAXIMUM (Button 32)            
+		// USAGE_MAXIMUM (Button 32)
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x29;
 		tempHidReportDescriptor[hidReportDescriptorSize++] = _buttonCount;
 
@@ -175,7 +201,7 @@ Joystick_::Joystick_(
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x02;
 
 		if (buttonPaddingBits > 0) {
-			
+
 			// REPORT_SIZE (1)
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x75;
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x01;
@@ -183,20 +209,20 @@ Joystick_::Joystick_(
 			// REPORT_COUNT (# of padding bits)
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x95;
 			tempHidReportDescriptor[hidReportDescriptorSize++] = buttonPaddingBits;
-					
+
 			// INPUT (Const,Var,Abs)
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x81;
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x03;
-			
+
 		} // Padding Bits Needed
 	} // Buttons
 
 	if ((axisCount > 0) || (_hatSwitchCount > 0)) {
-	
+
 		// USAGE_PAGE (Generic Desktop)
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x05;
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x01;
-		
+
 	}
 
 	if (_hatSwitchCount > 0) {
@@ -233,13 +259,13 @@ Joystick_::Joystick_(
 		// REPORT_COUNT (1)
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x95;
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x01;
-						
+
 		// INPUT (Data,Var,Abs)
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x81;
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x02;
-		
+
 		if (_hatSwitchCount > 1) {
-			
+
 			// USAGE (Hat Switch)
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x09;
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x39;
@@ -272,15 +298,15 @@ Joystick_::Joystick_(
 			// REPORT_COUNT (1)
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x95;
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x01;
-							
+
 			// INPUT (Data,Var,Abs)
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x81;
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x02;
-		
+
 		} else {
-		
+
 			// Use Padding Bits
-		
+
 			// REPORT_SIZE (1)
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x75;
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x01;
@@ -288,17 +314,17 @@ Joystick_::Joystick_(
 			// REPORT_COUNT (4)
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x95;
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x04;
-					
+
 			// INPUT (Const,Var,Abs)
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x81;
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x03;
-			
+
 		} // One or Two Hat Switches?
 
 	} // Hat Switches
 
 	if (axisCount > 0) {
-	
+
 		// USAGE (Pointer)
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x09;
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x01;
@@ -320,7 +346,7 @@ Joystick_::Joystick_(
 		// REPORT_COUNT (axisCount)
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x95;
 		tempHidReportDescriptor[hidReportDescriptorSize++] = axisCount;
-						
+
 		// COLLECTION (Physical)
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0xA1;
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x00;
@@ -336,46 +362,46 @@ Joystick_::Joystick_(
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x09;
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x31;
 		}
-		
+
 		if (includeZAxis == true) {
 			// USAGE (Z)
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x09;
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x32;
 		}
-		
+
 		if (includeRxAxis == true) {
 			// USAGE (Rx)
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x09;
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x33;
 		}
-		
+
 		if (includeRyAxis == true) {
 			// USAGE (Ry)
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x09;
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x34;
 		}
-		
+
 		if (includeRzAxis == true) {
 			// USAGE (Rz)
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x09;
 			tempHidReportDescriptor[hidReportDescriptorSize++] = 0x35;
 		}
-		
+
 		// INPUT (Data,Var,Abs)
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x81;
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x02;
-		
+
 		// END_COLLECTION (Physical)
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0xc0;
-		
-	} // X, Y, Z, Rx, Ry, and Rz Axis	
-	
+
+	} // X, Y, Z, Rx, Ry, and Rz Axis
+
 	if (simulationCount > 0) {
-	
+
 		// USAGE_PAGE (Simulation Controls)
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x05;
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x02;
-		
+
 		// LOGICAL_MINIMUM (-32767)
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x16;
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x01;
@@ -431,8 +457,8 @@ Joystick_::Joystick_(
 		// INPUT (Data,Var,Abs)
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x81;
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x02;
-		
-		// END_COLLECTION (Physical) 
+
+		// END_COLLECTION (Physical)
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0xc0;
 	} // Simulation Controls
 
@@ -444,9 +470,9 @@ Joystick_::Joystick_(
 	memcpy(customHidReportDescriptor, tempHidReportDescriptor, hidReportDescriptorSize);
 	// Register HID Report Description
 	DynamicHIDSubDescriptor* node = new DynamicHIDSubDescriptor(customHidReportDescriptor, hidReportDescriptorSize,pidReportDescriptor, pidReportDescriptorSize, false);
-	
+
 	DynamicHID().AppendDescriptor(node);
-	
+
     // Setup Joystick State
 	if (buttonCount > 0) {
 		_buttonValuesArraySize = _buttonCount / 8;
@@ -455,13 +481,13 @@ Joystick_::Joystick_(
 		}
 		_buttonValues = new uint8_t[_buttonValuesArraySize];
 	}
-	
+
 	// Calculate HID Report Size
 	_hidReportSize = _buttonValuesArraySize;
 	_hidReportSize += (_hatSwitchCount > 0);
 	_hidReportSize += (axisCount * 2);
 	_hidReportSize += (simulationCount * 2);
-	
+
 	// Initalize Joystick State
 	_xAxis = 0;
 	_yAxis = 0;
@@ -482,7 +508,131 @@ Joystick_::Joystick_(
     {
         _buttonValues[index] = 0;
     }
+
+    return *this;
 }
+
+// Fluent setters implementation
+Joystick_& Joystick_::hidReportId(uint8_t reportId) {
+    _hidReportId = reportId;
+    return *this;
+}
+
+Joystick_& Joystick_::joystickType(uint8_t type) {
+    // This would need to be handled during HID descriptor creation
+    return *this;
+}
+
+Joystick_& Joystick_::buttonCount(uint8_t count) {
+    _buttonCount = count;
+    return *this;
+}
+
+Joystick_& Joystick_::hatSwitchCount(uint8_t count) {
+    _hatSwitchCount = count > JOYSTICK_HATSWITCH_COUNT_MAXIMUM ? JOYSTICK_HATSWITCH_COUNT_MAXIMUM : count;
+    return *this;
+}
+
+Joystick_& Joystick_::includeXAxis(bool include) {
+    if (include) {
+        _includeAxisFlags |= JOYSTICK_INCLUDE_X_AXIS;
+    } else {
+        _includeAxisFlags &= ~JOYSTICK_INCLUDE_X_AXIS;
+    }
+    return *this;
+}
+
+Joystick_& Joystick_::includeYAxis(bool include) {
+    if (include) {
+        _includeAxisFlags |= JOYSTICK_INCLUDE_Y_AXIS;
+    } else {
+        _includeAxisFlags &= ~JOYSTICK_INCLUDE_Y_AXIS;
+    }
+    return *this;
+}
+
+Joystick_& Joystick_::includeZAxis(bool include) {
+    if (include) {
+        _includeAxisFlags |= JOYSTICK_INCLUDE_Z_AXIS;
+    } else {
+        _includeAxisFlags &= ~JOYSTICK_INCLUDE_Z_AXIS;
+    }
+    return *this;
+}
+
+Joystick_& Joystick_::includeRxAxis(bool include) {
+    if (include) {
+        _includeAxisFlags |= JOYSTICK_INCLUDE_RX_AXIS;
+    } else {
+        _includeAxisFlags &= ~JOYSTICK_INCLUDE_RX_AXIS;
+    }
+    return *this;
+}
+
+Joystick_& Joystick_::includeRyAxis(bool include) {
+    if (include) {
+        _includeAxisFlags |= JOYSTICK_INCLUDE_RY_AXIS;
+    } else {
+        _includeAxisFlags &= ~JOYSTICK_INCLUDE_RY_AXIS;
+    }
+    return *this;
+}
+
+Joystick_& Joystick_::includeRzAxis(bool include) {
+    if (include) {
+        _includeAxisFlags |= JOYSTICK_INCLUDE_RZ_AXIS;
+    } else {
+        _includeAxisFlags &= ~JOYSTICK_INCLUDE_RZ_AXIS;
+    }
+    return *this;
+}
+
+Joystick_& Joystick_::includeRudder(bool include) {
+    if (include) {
+        _includeSimulatorFlags |= JOYSTICK_INCLUDE_RUDDER;
+    } else {
+        _includeSimulatorFlags &= ~JOYSTICK_INCLUDE_RUDDER;
+    }
+    return *this;
+}
+
+Joystick_& Joystick_::includeThrottle(bool include) {
+    if (include) {
+        _includeSimulatorFlags |= JOYSTICK_INCLUDE_THROTTLE;
+    } else {
+        _includeSimulatorFlags &= ~JOYSTICK_INCLUDE_THROTTLE;
+    }
+    return *this;
+}
+
+Joystick_& Joystick_::includeAccelerator(bool include) {
+    if (include) {
+        _includeSimulatorFlags |= JOYSTICK_INCLUDE_ACCELERATOR;
+    } else {
+        _includeSimulatorFlags &= ~JOYSTICK_INCLUDE_ACCELERATOR;
+    }
+    return *this;
+}
+
+Joystick_& Joystick_::includeBrake(bool include) {
+    if (include) {
+        _includeSimulatorFlags |= JOYSTICK_INCLUDE_BRAKE;
+    } else {
+        _includeSimulatorFlags &= ~JOYSTICK_INCLUDE_BRAKE;
+    }
+    return *this;
+}
+
+Joystick_& Joystick_::includeSteering(bool include) {
+    if (include) {
+        _includeSimulatorFlags |= JOYSTICK_INCLUDE_STEERING;
+    } else {
+        _includeSimulatorFlags &= ~JOYSTICK_INCLUDE_STEERING;
+    }
+    return *this;
+}
+
+
 
 void Joystick_::begin(bool initAutoSendState)
 {
