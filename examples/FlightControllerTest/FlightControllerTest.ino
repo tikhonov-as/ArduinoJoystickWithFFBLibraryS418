@@ -6,7 +6,7 @@
 // 2016-05-29 - Original Version
 //------------------------------------------------------------
 
-#include "Joystick.h"
+#include "JoystickS418.h"
 
 Joystick_ Joystick(JOYSTICK_DEFAULT_REPORT_ID, 
   JOYSTICK_TYPE_MULTI_AXIS, 32, 0,

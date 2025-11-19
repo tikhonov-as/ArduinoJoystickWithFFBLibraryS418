@@ -18,7 +18,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "Joystick.h"
+#include "JoystickS418.h"
 #include "FFBDescriptor.h"
 #if defined(_USING_DYNAMIC_HID)
 

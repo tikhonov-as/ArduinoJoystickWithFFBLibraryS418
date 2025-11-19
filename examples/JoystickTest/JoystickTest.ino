@@ -10,7 +10,7 @@
 //              that can be customized.
 //------------------------------------------------------------
 
-#include "Joystick.h"
+#include "JoystickS418.h"
 
 // Create Joystick
 Joystick_ Joystick;

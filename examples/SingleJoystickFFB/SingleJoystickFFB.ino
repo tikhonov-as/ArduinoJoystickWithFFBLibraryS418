@@ -1,4 +1,4 @@
-#include "Joystick.h"
+#include "JoystickS418.h"
 
 //X-axis & Y-axis REQUIRED
 Joystick_ Joystick(JOYSTICK_DEFAULT_REPORT_ID, 
