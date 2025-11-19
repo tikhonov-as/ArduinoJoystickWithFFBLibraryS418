@@ -61,6 +61,9 @@
 #define FORCE_FEEDBACK_MAXGAIN              100
 #define DEG_TO_RAD              ((float)((float)3.14159265359 / 180.0))
 
+typedef uint32_t axis_flags_t;
+typedef uint32_t simulator_flags_t;
+
 struct Gains{
     uint8_t totalGain         = FORCE_FEEDBACK_MAXGAIN;
     uint8_t constantGain      = FORCE_FEEDBACK_MAXGAIN;
@@ -117,8 +120,8 @@ private:
     uint8_t                  _buttonCount;
     uint8_t                  _buttonValuesArraySize = 0;
     uint8_t					 _hatSwitchCount;
-    uint8_t					 _includeAxisFlags;
-    uint8_t					 _includeSimulatorFlags;
+    axis_flags_t    	     _includeAxisFlags;
+    simulator_flags_t        _includeSimulatorFlags;
     int16_t                  _xAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;
     int16_t                  _xAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;
     int16_t                  _yAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;
@@ -210,11 +213,22 @@ public:
     Joystick_& includeRxAxis(bool include = true);
     Joystick_& includeRyAxis(bool include = true);
     Joystick_& includeRzAxis(bool include = true);
+
     Joystick_& includeRudder(bool include = true);
     Joystick_& includeThrottle(bool include = true);
     Joystick_& includeAccelerator(bool include = true);
     Joystick_& includeBrake(bool include = true);
     Joystick_& includeSteering(bool include = true);
+    // todo
+//    Joystick_& includeSlider(bool include = true);
+//    Joystick_& includeDial(bool include = true);
+//    Joystick_& includeWheel(bool include = true);
+//    Joystick_& includeVxAxis(bool include = true);
+//    Joystick_& includeVyAxis(bool include = true);
+//    Joystick_& includeVzAxis(bool include = true);
+    // ... и т.д. для всех осей
+
+
 
     // Set Range Functions
     inline void setXAxisRange(int16_t minimum, int16_t maximum)
