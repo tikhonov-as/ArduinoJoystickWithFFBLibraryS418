@@ -247,7 +247,7 @@ Joystick_& Joystick_::init()
 
     // USAGE (Joystick - 0x04; Gamepad - 0x05; Multi-axis Controller - 0x08)
     tempHidReportDescriptor[hidReportDescriptorSize++] = 0x09;
-    tempHidReportDescriptor[hidReportDescriptorSize++] = joystickType;
+    tempHidReportDescriptor[hidReportDescriptorSize++] = _joystickType;
 
     // COLLECTION (Application)
     tempHidReportDescriptor[hidReportDescriptorSize++] = 0xa1;
@@ -561,7 +561,12 @@ Joystick_& Joystick_::init()
 
     // HID Project-based devices uses an automatic queueing mechanism.
     // For best compatibility, always send single or multiple reports in a single write call.
-    DynamicHIDSubDescriptor *node = new DynamicHIDSubDescriptor(customHidReportDescriptor, hidReportDescriptorSize, false);
+	DynamicHIDSubDescriptor* node = new DynamicHIDSubDescriptor(
+            customHidReportDescriptor,
+            hidReportDescriptorSize,
+            pidReportDescriptor,
+            pidReportDescriptorSize,
+            false);
     DynamicHID().AppendDescriptor(node);
 
     // Setup Joystick State
@@ -589,7 +594,7 @@ Joystick_& Joystick_::hidReportId(uint8_t reportId) {
 }
 
 Joystick_& Joystick_::joystickType(uint8_t type) {
-    // This would need to be handled during HID descriptor creation
+    _joystickType = type;
     return *this;
 }
 

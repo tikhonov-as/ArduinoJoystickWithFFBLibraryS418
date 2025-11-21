@@ -242,6 +242,7 @@ private:
 
     uint8_t                  _hidReportId;
     uint8_t                  _hidReportSize;
+    uint8_t                  _joystickType;
 
     //force feedback gain
     Gains* m_gains;
