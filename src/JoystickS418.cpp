@@ -131,7 +131,7 @@ unsigned int timecnt = 0;
 namespace S418 {
     namespace JoystickFfb {
 
-/**/
+
 Joystick_::Joystick_(
 	uint8_t hidReportId,
 	uint8_t joystickType,
@@ -170,7 +170,6 @@ Joystick_::Joystick_(
         .includeSteering(includeSteering)
         .init();
 }
-/**/
 
 Joystick_::Joystick_()
 {
