@@ -104,9 +104,9 @@ private:
     int16_t	                 _xAxis;
     int16_t	                 _yAxis;
     int16_t	                 _zAxis;
-    int16_t	                 _xAxisRotation;
-    int16_t	                 _yAxisRotation;
-    int16_t	                 _zAxisRotation;
+    int16_t	                 _rxAxis;
+    int16_t	                 _ryAxis;
+    int16_t	                 _rzAxis;
 
     int16_t                  _slider;
     int16_t                  _dial;
@@ -275,7 +275,7 @@ public:
     Joystick_();
 
     Joystick_(
-        uint8_t hidReportId = JOYSTICK_DEFAULT_REPORT_ID,
+        uint8_t hidReportId,
         uint8_t joystickType = JOYSTICK_TYPE_JOYSTICK,
         uint8_t buttonCount = JOYSTICK_DEFAULT_BUTTON_COUNT,
         uint8_t hatSwitchCount = JOYSTICK_DEFAULT_HATSWITCH_COUNT,
@@ -295,7 +295,7 @@ public:
     void begin(bool initAutoSendState = true);
     void end();
 
-    Joystick_& Joystick_::init();
+    Joystick_& init();
 
     // Fluent setters
     Joystick_& hidReportId(uint8_t reportId);
