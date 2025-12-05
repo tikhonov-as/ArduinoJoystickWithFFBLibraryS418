@@ -126,95 +126,19 @@ unsigned int timecnt = 0;
 namespace S418 {
     namespace JoystickFfb {
 
-Joystick_::Joystick_(
-	uint8_t hidReportId,
-	uint8_t joystickType,
-    uint8_t buttonCount,
-	uint8_t hatSwitchCount,
-	bool includeXAxis,
-	bool includeYAxis,
-	bool includeZAxis,
-	bool includeRxAxis,
-	bool includeRyAxis,
-	bool includeRzAxis,
-	bool includeRudder,
-	bool includeThrottle,
-	bool includeAccelerator,
-	bool includeBrake,
-	bool includeSteering)
-{
-    // Save Joystick Settings
-	_includeAxisFlags = 0;
-	_includeSimulatorFlags = 0;
-
-    this->hidReportId(hidReportId)
-        .joystickType(joystickType)
-        .buttonCount(buttonCount)
-        .hatSwitchCount(hatSwitchCount)
-        .includeXAxis(includeXAxis)
-        .includeYAxis(includeYAxis)
-        .includeZAxis(includeZAxis)
-        .includeRxAxis(includeRxAxis)
-        .includeRyAxis(includeRyAxis)
-        .includeRzAxis(includeRzAxis)
-        .includeRudder(includeRudder)
-        .includeThrottle(includeThrottle)
-        .includeAccelerator(includeAccelerator)
-        .includeBrake(includeBrake)
-        .includeSteering(includeSteering)
-        .init();
-}
-
 Joystick_::Joystick_()
 {
-	_includeAxisFlags = 0;
-	_includeSimulatorFlags = 0;
-
-this->hidReportId(JOYSTICK_DEFAULT_REPORT_ID)
+    this->hidReportId(JOYSTICK_DEFAULT_REPORT_ID)
         .joystickType(JOYSTICK_TYPE_JOYSTICK)
         .buttonCount(0)
-        .hatSwitchCount(0)
-        .includeXAxis(false)
-        .includeYAxis(false)
-        .includeZAxis(false)
-        .includeRxAxis(false)
-        .includeRyAxis(false)
-        .includeRzAxis(false)
-        .includeSlider(false)
-        .includeDial(false)
-        .includeWheel(false)
-        .includeVx(false)
-        .includeVy(false)
-        .includeVz(false)
-        .includeVbrx(false)
-        .includeVbry(false)
-        .includeVbrz(false)
-        .includeAx(false)
-        .includeAy(false)
-        .includeAz(false)
-        .includeAbrrx(false)
-        .includeAbrry(false)
-        .includeAbrrz(false)
-        .includeForcex(false)
-        .includeForcey(false)
-        .includeForcez(false)
-        .includeTorquex(false)
-        .includeTorquey(false)
-        .includeTorquez(false)
-        .includeYaw(false)
-        .includePitch(false)
-        .includeRoll(false)
-        .includeRudder(false)
-        .includeThrottle(false)
-        .includeAccelerator(false)
-        .includeBrake(false)
-        .includeClutch(false)
-        .includeHandbrake(false)
-        .includeSteering(false)
-        .includeTurretx(false)
-        .includeTurrety(false)
-        .includeTurretz(false)
-        ;
+        .hatSwitchCount(0);
+
+    for(size_t i=0; i < AXES_COUNT; i++) {
+        _axesInclude[i] = false;
+		_axes[i] = 0;
+		_axesMin[i] = JOYSTICK_DEFAULT_AXIS_MINIMUM;
+		_axesMax[i] = JOYSTICK_DEFAULT_AXIS_MAXIMUM;
+	}
 }
 
 Joystick_& Joystick_::init()
@@ -320,7 +244,7 @@ Joystick_& Joystick_::init()
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x01;
 	}
 
-if (_hatSwitchCount > 0) {
+    if (_hatSwitchCount > 0) {
 
 		// USAGE (Hat Switch)
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x09;
@@ -447,46 +371,44 @@ if (_hatSwitchCount > 0) {
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x00;
 
         // Add axes USAGEs
-        // USAGEs (Based on _includeAxisFlags)
-        uint32_t flag = 1;
-        uint8_t usageCount = 0;
-        for (uint8_t i = 0; i < 32 && usageCount < axisCount; i++) {
-            if (_includeAxisFlags & flag) {
-                // USAGE (usage)
-                tempHidReportDescriptor[hidReportDescriptorSize++] = 0x09;
-                switch (flag) {
-                    case JOYSTICK_INCLUDE_X_AXIS: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x30; break;
-                    case JOYSTICK_INCLUDE_Y_AXIS: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x31; break;
-                    case JOYSTICK_INCLUDE_Z_AXIS: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x32; break;
-                    case JOYSTICK_INCLUDE_RX_AXIS: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x33; break;
-                    case JOYSTICK_INCLUDE_RY_AXIS: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x34; break;
-                    case JOYSTICK_INCLUDE_RZ_AXIS: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x35; break;
-                    case JOYSTICK_INCLUDE_SLIDER: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x36; break;
-                    case JOYSTICK_INCLUDE_DIAL: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x37; break;
-                    case JOYSTICK_INCLUDE_WHEEL: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x38; break;
-                    case JOYSTICK_INCLUDE_VX: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x40; break;
-                    case JOYSTICK_INCLUDE_VY: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x41; break;
-                    case JOYSTICK_INCLUDE_VZ: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x42; break;
-                    case JOYSTICK_INCLUDE_VBRX: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x43; break;
-                    case JOYSTICK_INCLUDE_VBRY: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x44; break;
-                    case JOYSTICK_INCLUDE_VBRZ: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x45; break;
-                    case JOYSTICK_INCLUDE_AX: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x46; break;
-                    case JOYSTICK_INCLUDE_AY: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x47; break;
-                    case JOYSTICK_INCLUDE_AZ: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x48; break;
-                    case JOYSTICK_INCLUDE_ABRRX: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x49; break;
-                    case JOYSTICK_INCLUDE_ABRRY: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x4A; break;
-                    case JOYSTICK_INCLUDE_ABRRZ: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x4B; break;
-                    case JOYSTICK_INCLUDE_FORCEX: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x4C; break;
-                    case JOYSTICK_INCLUDE_FORCEY: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x4D; break;
-                    case JOYSTICK_INCLUDE_FORCEZ: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x4E; break;
-                    case JOYSTICK_INCLUDE_TORQUEX: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x4F; break;
-                    case JOYSTICK_INCLUDE_TORQUEY: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x50; break;
-                    case JOYSTICK_INCLUDE_TORQUEZ: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x51; break;
-                    default: tempHidReportDescriptor[hidReportDescriptorSize++] = 0x30; break;
+        for (int i = 0; i < AXES_COUNT; i++) {
+            if (_axesInclude[i]) {
+                uint8_t val = 0;
+                switch (ALL_AXES[i]) {
+                    case A_X: val = 0x30; break;
+                    case A_Y: val = 0x31; break;
+                    case A_Z: val = 0x32; break;
+                    case A_RX: val = 0x33; break;
+                    case A_RY: val = 0x34; break;
+                    case A_RZ: val = 0x35; break;
+                    case A_SLIDER: val = 0x36; break;
+                    case A_DIAL: val = 0x37; break;
+                    case A_WHEEL: val = 0x38; break;
+                    case A_VX: val = 0x40; break;
+                    case A_VY: val = 0x41; break;
+                    case A_VZ: val = 0x42; break;
+                    case A_VBRX: val = 0x43; break;
+                    case A_VBRY: val = 0x44; break;
+                    case A_VBRZ: val = 0x45; break;
+                    case A_AX: val = 0x46; break;
+                    case A_AY: val = 0x47; break;
+                    case A_AZ: val = 0x48; break;
+                    case A_ABRRX: val = 0x49; break;
+                    case A_ABRRY: val = 0x4A; break;
+                    case A_ABRRZ: val = 0x4B; break;
+                    case A_FORCEX: val = 0x4C; break;
+                    case A_FORCEY: val = 0x4D; break;
+                    case A_FORCEZ: val = 0x4E; break;
+                    case A_TORQUEX: val = 0x4F; break;
+                    case A_TORQUEY: val = 0x50; break;
+                    case A_TORQUEZ: val = 0x51; break;
                 }
-                usageCount++;
+
+                if (val) {
+                    tempHidReportDescriptor[hidReportDescriptorSize++] = 0x09;
+                    tempHidReportDescriptor[hidReportDescriptorSize++] = '';
+                }
             }
-            flag <<= 1;
         }
 
         // INPUT (Data,Var,Abs)
@@ -527,32 +449,30 @@ if (_hatSwitchCount > 0) {
 		tempHidReportDescriptor[hidReportDescriptorSize++] = 0x00;
 
         // Add simulation USAGEs
-        // USAGEs (Based on _includeSimulatorFlags)
-        uint32_t simFlag = 1;
-        uint8_t simUsageCount = 0;
-        for (uint8_t i = 0; i < 32 && simUsageCount < simulationCount; i++) {
-            if (_includeSimulatorFlags & simFlag) {
-                // USAGE (usage)
-                tempHidReportDescriptor[hidReportDescriptorSize++] = 0x09;
-                switch (simFlag) {
-                    case JOYSTICK_INCLUDE_YAW: tempHidReportDescriptor[hidReportDescriptorSize++] = 0xB0; break;
-                    case JOYSTICK_INCLUDE_PITCH: tempHidReportDescriptor[hidReportDescriptorSize++] = 0xB1; break;
-                    case JOYSTICK_INCLUDE_ROLL: tempHidReportDescriptor[hidReportDescriptorSize++] = 0xB2; break;
-                    case JOYSTICK_INCLUDE_RUDDER: tempHidReportDescriptor[hidReportDescriptorSize++] = 0xBA; break;
-                    case JOYSTICK_INCLUDE_THROTTLE: tempHidReportDescriptor[hidReportDescriptorSize++] = 0xBB; break;
-                    case JOYSTICK_INCLUDE_ACCELERATOR: tempHidReportDescriptor[hidReportDescriptorSize++] = 0xC4; break;
-                    case JOYSTICK_INCLUDE_BRAKE: tempHidReportDescriptor[hidReportDescriptorSize++] = 0xC5; break;
-                    case JOYSTICK_INCLUDE_CLUTCH: tempHidReportDescriptor[hidReportDescriptorSize++] = 0xC6; break;
-                    case JOYSTICK_INCLUDE_HANDBRAKE: tempHidReportDescriptor[hidReportDescriptorSize++] = 0xC7; break;
-                    case JOYSTICK_INCLUDE_STEERING: tempHidReportDescriptor[hidReportDescriptorSize++] = 0xC8; break;
-                    case JOYSTICK_INCLUDE_TURRETX: tempHidReportDescriptor[hidReportDescriptorSize++] = 0xC9; break;
-                    case JOYSTICK_INCLUDE_TURRETY: tempHidReportDescriptor[hidReportDescriptorSize++] = 0xCA; break;
-                    case JOYSTICK_INCLUDE_TURRETZ: tempHidReportDescriptor[hidReportDescriptorSize++] = 0xCB; break;
-                    default: tempHidReportDescriptor[hidReportDescriptorSize++] = 0xB0; break;
+        for (int i = 0; i < AXES_COUNT; i++) {
+            if (_axesInclude[i]) {
+                uint8_t val = 0;
+
+                switch (ALL_AXES[i]) {
+                    case S_YAW: val = 0xB0; break;
+                    case S_PITCH: val = 0xB1; break;
+                    case S_ROLL: val = 0xB2; break;
+                    case S_RUDDER: val = 0xBA; break;
+                    case S_THROTTLE: val = 0xBB; break;
+                    case S_ACCELERATOR: val = 0xC4; break;
+                    case S_BRAKE: val = 0xC5; break;
+                    case S_CLUTCH: val = 0xC6; break;
+                    case S_HANDBRAKE: val = 0xC7; break;
+                    case S_STEERING: val = 0xC8; break;
+                    case S_TURRETX: val = 0xC9; break;
+                    case S_TURRETY: val = 0xCA; break;
+                    case S_TURRETZ: val = 0xCB; break;
                 }
-                simUsageCount++;
+                if (val) {
+                    tempHidReportDescriptor[hidReportDescriptorSize++] = 0x09;
+                    tempHidReportDescriptor[hidReportDescriptorSize++] = val;
+                }
             }
-            simFlag <<= 1;
         }
 
         // INPUT (Data,Var,Abs)
@@ -589,48 +509,6 @@ if (_hatSwitchCount > 0) {
 	_hidReportSize += (axisCount * 2);
 	_hidReportSize += (simulationCount * 2);
 
-    _xAxis = 0;
-    _yAxis = 0;
-    _zAxis = 0;
-    _rxAxis = 0;
-    _ryAxis = 0;
-    _rzAxis = 0;
-    _slider = 0;
-    _dial = 0;
-    _wheel = 0;
-    _hatswitch = 0;
-    _vx = 0;
-    _vy = 0;
-    _vz = 0;
-    _vbrx = 0;
-    _vbry = 0;
-    _vbrz = 0;
-    _ax = 0;
-    _ay = 0;
-    _az = 0;
-    _abrrx = 0;
-    _abrry = 0;
-    _abrrz = 0;
-    _forcex = 0;
-    _forcey = 0;
-    _forcez = 0;
-    _torquex = 0;
-    _torquey = 0;
-    _torquez = 0;
-    _yaw = 0;
-    _pitch = 0;
-    _roll = 0;
-    _rudder = 0;
-    _throttle = 0;
-    _accelerator = 0;
-    _brake = 0;
-    _clutch = 0;
-    _handbrake = 0;
-    _steering = 0;
-    _turretx = 0;
-    _turrety = 0;
-    _turretz = 0;
-
     // Initialize Hat Switch Values
     for (int index = 0; index < JOYSTICK_HATSWITCH_COUNT_MAXIMUM; index++)
     {
@@ -665,363 +543,11 @@ Joystick_& Joystick_::hatSwitchCount(uint8_t count) {
     return *this;
 }
 
-Joystick_& Joystick_::includeXAxis(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_X_AXIS;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_X_AXIS;
-    }
-    return *this;
-}
+Joystick_& Joystick_::includeAxis(Axis axis, bool include)
+{
+	_axesInclude[static_cast<size_t>(axis)] = include;
+	if (_autoSendState) sendState();
 
-Joystick_& Joystick_::includeYAxis(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_Y_AXIS;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_Y_AXIS;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeZAxis(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_Z_AXIS;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_Z_AXIS;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeRxAxis(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_RX_AXIS;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_RX_AXIS;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeRyAxis(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_RY_AXIS;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_RY_AXIS;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeRzAxis(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_RZ_AXIS;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_RZ_AXIS;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeSlider(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_SLIDER;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_SLIDER;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeDial(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_DIAL;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_DIAL;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeWheel(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_WHEEL;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_WHEEL;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeVx(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_VX;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_VX;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeVy(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_VY;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_VY;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeVz(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_VZ;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_VZ;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeVbrx(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_VBRX;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_VBRX;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeVbry(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_VBRY;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_VBRY;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeVbrz(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_VBRZ;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_VBRZ;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeAx(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_AX;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_AX;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeAy(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_AY;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_AY;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeAz(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_AZ;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_AZ;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeAbrrx(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_ABRRX;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_ABRRX;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeAbrry(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_ABRRY;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_ABRRY;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeAbrrz(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_ABRRZ;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_ABRRZ;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeForcex(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_FORCEX;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_FORCEX;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeForcey(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_FORCEY;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_FORCEY;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeForcez(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_FORCEZ;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_FORCEZ;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeTorquex(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_TORQUEX;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_TORQUEX;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeTorquey(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_TORQUEY;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_TORQUEY;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeTorquez(bool include) {
-    if (include) {
-        _includeAxisFlags |= JOYSTICK_INCLUDE_TORQUEZ;
-    } else {
-        _includeAxisFlags &= ~JOYSTICK_INCLUDE_TORQUEZ;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeYaw(bool include) {
-    if (include) {
-        _includeSimulatorFlags |= JOYSTICK_INCLUDE_YAW;
-    } else {
-        _includeSimulatorFlags &= ~JOYSTICK_INCLUDE_YAW;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includePitch(bool include) {
-    if (include) {
-        _includeSimulatorFlags |= JOYSTICK_INCLUDE_PITCH;
-    } else {
-        _includeSimulatorFlags &= ~JOYSTICK_INCLUDE_PITCH;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeRoll(bool include) {
-    if (include) {
-        _includeSimulatorFlags |= JOYSTICK_INCLUDE_ROLL;
-    } else {
-        _includeSimulatorFlags &= ~JOYSTICK_INCLUDE_ROLL;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeRudder(bool include) {
-    if (include) {
-        _includeSimulatorFlags |= JOYSTICK_INCLUDE_RUDDER;
-    } else {
-        _includeSimulatorFlags &= ~JOYSTICK_INCLUDE_RUDDER;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeThrottle(bool include) {
-    if (include) {
-        _includeSimulatorFlags |= JOYSTICK_INCLUDE_THROTTLE;
-    } else {
-        _includeSimulatorFlags &= ~JOYSTICK_INCLUDE_THROTTLE;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeAccelerator(bool include) {
-    if (include) {
-        _includeSimulatorFlags |= JOYSTICK_INCLUDE_ACCELERATOR;
-    } else {
-        _includeSimulatorFlags &= ~JOYSTICK_INCLUDE_ACCELERATOR;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeBrake(bool include) {
-    if (include) {
-        _includeSimulatorFlags |= JOYSTICK_INCLUDE_BRAKE;
-    } else {
-        _includeSimulatorFlags &= ~JOYSTICK_INCLUDE_BRAKE;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeClutch(bool include) {
-    if (include) {
-        _includeSimulatorFlags |= JOYSTICK_INCLUDE_CLUTCH;
-    } else {
-        _includeSimulatorFlags &= ~JOYSTICK_INCLUDE_CLUTCH;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeHandbrake(bool include) {
-    if (include) {
-        _includeSimulatorFlags |= JOYSTICK_INCLUDE_HANDBRAKE;
-    } else {
-        _includeSimulatorFlags &= ~JOYSTICK_INCLUDE_HANDBRAKE;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeSteering(bool include) {
-    if (include) {
-        _includeSimulatorFlags |= JOYSTICK_INCLUDE_STEERING;
-    } else {
-        _includeSimulatorFlags &= ~JOYSTICK_INCLUDE_STEERING;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeTurretx(bool include) {
-    if (include) {
-        _includeSimulatorFlags |= JOYSTICK_INCLUDE_TURRETX;
-    } else {
-        _includeSimulatorFlags &= ~JOYSTICK_INCLUDE_TURRETX;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeTurrety(bool include) {
-    if (include) {
-        _includeSimulatorFlags |= JOYSTICK_INCLUDE_TURRETY;
-    } else {
-        _includeSimulatorFlags &= ~JOYSTICK_INCLUDE_TURRETY;
-    }
-    return *this;
-}
-
-Joystick_& Joystick_::includeTurretz(bool include) {
-    if (include) {
-        _includeSimulatorFlags |= JOYSTICK_INCLUDE_TURRETZ;
-    } else {
-        _includeSimulatorFlags &= ~JOYSTICK_INCLUDE_TURRETZ;
-    }
     return *this;
 }
 
@@ -1370,247 +896,13 @@ void Joystick_::releaseButton(uint8_t button)
 	if (_autoSendState) sendState();
 }
 
-// Position Set Functions
-void Joystick_::setXAxis(int16_t value)
+void Joystick_::setAxis(Axis axis, int16_t value)
 {
-    _xAxis = value;
-    if (_autoSendState) sendState();
-}
+	_axes[static_cast<size_t>(axis)] = value;
+	if (_autoSendState) sendState();
 
-void Joystick_::setYAxis(int16_t value)
-{
-    _yAxis = value;
-    if (_autoSendState) sendState();
+    return *this;
 }
-
-void Joystick_::setZAxis(int16_t value)
-{
-    _zAxis = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setRxAxis(int16_t value)
-{
-    _rxAxis = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setRyAxis(int16_t value)
-{
-    _ryAxis = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setRzAxis(int16_t value)
-{
-    _rzAxis = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setSlider(int16_t value)
-{
-    _slider = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setDial(int16_t value)
-{
-    _dial = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setWheel(int16_t value)
-{
-    _wheel = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setVx(int16_t value)
-{
-    _vx = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setVy(int16_t value)
-{
-    _vy = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setVz(int16_t value)
-{
-    _vz = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setVbrx(int16_t value)
-{
-    _vbrx = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setVbry(int16_t value)
-{
-    _vbry = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setVbrz(int16_t value)
-{
-    _vbrz = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setAx(int16_t value)
-{
-    _ax = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setAy(int16_t value)
-{
-    _ay = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setAz(int16_t value)
-{
-    _az = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setAbrrx(int16_t value)
-{
-    _abrrx = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setAbrry(int16_t value)
-{
-    _abrry = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setAbrrz(int16_t value)
-{
-    _abrrz = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setForcex(int16_t value)
-{
-    _forcex = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setForcey(int16_t value)
-{
-    _forcey = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setForcez(int16_t value)
-{
-    _forcez = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setTorquex(int16_t value)
-{
-    _torquex = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setTorquey(int16_t value)
-{
-    _torquey = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setTorquez(int16_t value)
-{
-    _torquez = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setYaw(int16_t value)
-{
-    _yaw = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setPitch(int16_t value)
-{
-    _pitch = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setRoll(int16_t value)
-{
-    _roll = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setRudder(int16_t value)
-{
-    _rudder = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setThrottle(int16_t value)
-{
-    _throttle = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setAccelerator(int16_t value)
-{
-    _accelerator = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setBrake(int16_t value)
-{
-    _brake = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setClutch(int16_t value)
-{
-    _clutch = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setHandbrake(int16_t value)
-{
-    _handbrake = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setSteering(int16_t value)
-{
-    _steering = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setTurretx(int16_t value)
-{
-    _turretx = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setTurrety(int16_t value)
-{
-    _turrety = value;
-    if (_autoSendState) sendState();
-}
-
-void Joystick_::setTurretz(int16_t value)
-{
-    _turretz = value;
-    if (_autoSendState) sendState();
-}
-
 
 void Joystick_::setHatSwitch(int8_t hatSwitchIndex, int16_t value)
 {
@@ -1630,19 +922,9 @@ int Joystick_::buildAndSet16BitValue(bool includeValue, int16_t value, int16_t v
 
 	if (includeValue == false) return 0;
 
-	if (value < realMinimum) {
-		value = realMinimum;
-	}
-	if (value > realMaximum) {
-		value = realMaximum;
-	}
+	value = constrain(value, valueMinimum, valueMaximum);
 
-	if (valueMinimum > valueMaximum) {
-		// Values go from a larger number to a smaller number (e.g. 1024 to 0)
-		value = realMaximum - value + realMinimum;
-	}
-
-	convertedValue = map(value, realMinimum, realMaximum, actualMinimum, actualMaximum);
+	convertedValue = map(value, valueMinimum, valueMaximum, actualMinimum, actualMaximum);
 
 	highByte = (uint8_t)(convertedValue >> 8);
 	lowByte = (uint8_t)(convertedValue & 0x00FF);
@@ -1653,14 +935,15 @@ int Joystick_::buildAndSet16BitValue(bool includeValue, int16_t value, int16_t v
 	return 2;
 }
 
-int Joystick_::buildAndSetAxisValue(bool includeAxis, int16_t axisValue, int16_t axisMinimum, int16_t axisMaximum, uint8_t dataLocation[]) 
+int Joystick_::buildAndSetAxisValue(Axis axis, uint8_t dataLocation[])
 {
-	return buildAndSet16BitValue(includeAxis, axisValue, axisMinimum, axisMaximum, JOYSTICK_AXIS_MINIMUM, JOYSTICK_AXIS_MAXIMUM, dataLocation);
-}
+	size_t idx = static_cast<size_t>(axis);
 
-int Joystick_::buildAndSetSimulationValue(bool includeValue, int16_t value, int16_t valueMinimum, int16_t valueMaximum, uint8_t dataLocation[]) 
-{
-	return buildAndSet16BitValue(includeValue, value, valueMinimum, valueMaximum, JOYSTICK_SIMULATOR_MINIMUM, JOYSTICK_SIMULATOR_MAXIMUM, dataLocation);
+	return buildAndSet16BitValue(_axesInclude[idx],
+		_axes[idx],
+		_axesMin[idx],
+		_axesMax[idx],
+		JOYSTICK_AXIS_MINIMUM, JOYSTICK_AXIS_MAXIMUM, dataLocation);
 }
 
 void Joystick_::sendState()
@@ -1696,49 +979,9 @@ void Joystick_::sendState()
 	
 	} // Hat Switches
 
-    // Set Axis Values
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_X_AXIS, _xAxis, _xAxisMinimum, _xAxisMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_Y_AXIS, _yAxis, _yAxisMinimum, _yAxisMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_Z_AXIS, _zAxis, _zAxisMinimum, _zAxisMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_RX_AXIS, _rxAxis, _rxAxisMinimum, _rxAxisMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_RY_AXIS, _ryAxis, _ryAxisMinimum, _ryAxisMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_RZ_AXIS, _rzAxis, _rzAxisMinimum, _rzAxisMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_SLIDER, _slider, _sliderMinimum, _sliderMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_DIAL, _dial, _dialMinimum, _dialMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_WHEEL, _wheel, _wheelMinimum, _wheelMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_VX, _vx, _vxMinimum, _vxMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_VY, _vy, _vyMinimum, _vyMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_VZ, _vz, _vzMinimum, _vzMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_VBRX, _vbrx, _vbrxMinimum, _vbrxMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_VBRY, _vbry, _vbryMinimum, _vbryMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_VBRZ, _vbrz, _vbrzMinimum, _vbrzMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_AX, _ax, _axMinimum, _axMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_AY, _ay, _ayMinimum, _ayMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_AZ, _az, _azMinimum, _azMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_ABRRX, _abrrx, _abrrxMinimum, _abrrxMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_ABRRY, _abrry, _abrryMinimum, _abrryMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_ABRRZ, _abrrz, _abrrzMinimum, _abrrzMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_FORCEX, _forcex, _forcexMinimum, _forcexMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_FORCEY, _forcey, _forceyMinimum, _forceyMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_FORCEZ, _forcez, _forcezMinimum, _forcezMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_TORQUEX, _torquex, _torquexMinimum, _torquexMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_TORQUEY, _torquey, _torqueyMinimum, _torqueyMaximum, &(data[index]));
-    index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_TORQUEZ, _torquez, _torquezMinimum, _torquezMaximum, &(data[index]));
-
-    // Set Simulation Values
-    index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_YAW, _yaw, _yawMinimum, _yawMaximum, &(data[index]));
-    index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_PITCH, _pitch, _pitchMinimum, _pitchMaximum, &(data[index]));
-    index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_ROLL, _roll, _rollMinimum, _rollMaximum, &(data[index]));
-    index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_RUDDER, _rudder, _rudderMinimum, _rudderMaximum, &(data[index]));
-    index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_THROTTLE, _throttle, _throttleMinimum, _throttleMaximum, &(data[index]));
-    index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_ACCELERATOR, _accelerator, _acceleratorMinimum, _acceleratorMaximum, &(data[index]));
-    index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_BRAKE, _brake, _brakeMinimum, _brakeMaximum, &(data[index]));
-    index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_CLUTCH, _clutch, _clutchMinimum, _clutchMaximum, &(data[index]));
-    index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_HANDBRAKE, _handbrake, _handbrakeMinimum, _handbrakeMaximum, &(data[index]));
-    index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_STEERING, _steering, _steeringMinimum, _steeringMaximum, &(data[index]));
-    index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_TURRETX, _turretx, _turretxMinimum, _turretxMaximum, &(data[index]));
-    index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_TURRETY, _turrety, _turretyMinimum, _turretyMaximum, &(data[index]));
-    index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_TURRETZ, _turretz, _turretzMinimum, _turretzMaximum, &(data[index]));
+    for (const auto& axis : ALL_AXES) {
+        index += buildAndSetAxisValue(axis, &(data[index]));
+    }
 
 	DynamicHID().SendReport(_hidReportId, data, _hidReportSize);
 }
