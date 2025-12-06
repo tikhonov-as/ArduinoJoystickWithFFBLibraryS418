@@ -139,11 +139,10 @@ this->hidReportId(JOYSTICK_DEFAULT_REPORT_ID)
         ;
 
         for(size_t i=0; i < ALL_AXES_COUNT; i++) {
-            this->includeAxis(ALL_AXES[i], false);
-//            _axesInclude[i] = false;
-//            _axes[i] = 0;
-//            _axesMin[i] = JOYSTICK_DEFAULT_AXIS_MINIMUM;
-//            _axesMax[i] = JOYSTICK_DEFAULT_AXIS_MAXIMUM;
+            this
+                ->includeAxis(ALL_AXES[i], false)
+                .setAxisRange(ALL_AXES[i], 0, 1023)
+                .setAxisValue(ALL_AXES[i], 0);
         }
 }
 
@@ -596,8 +595,176 @@ Joystick_& Joystick_::hatSwitchCount(uint8_t count) {
     return *this;
 }
 
-Joystick_& Joystick_::setAxisRange(Axis axis, int16_t min, int16_t max) {
-
+Joystick_& Joystick_::Joystick_::setAxisRange(Axis axis, int16_t min, int16_t max)
+{
+    switch (axis) {
+        case A_X:
+            _xAxisMinimum = min;
+            _xAxisMaximum = max;
+            break;
+        case A_Y:
+            _yAxisMinimum = min;
+            _yAxisMaximum = max;
+            break;
+        case A_Z:
+            _zAxisMinimum = min;
+            _zAxisMaximum = max;
+            break;
+        case A_RX:
+            _rxAxisMinimum = min;
+            _rxAxisMaximum = max;
+            break;
+        case A_RY:
+            _ryAxisMinimum = min;
+            _ryAxisMaximum = max;
+            break;
+        case A_RZ:
+            _rzAxisMinimum = min;
+            _rzAxisMaximum = max;
+            break;
+        case A_SLIDER:
+            _sliderMinimum = min;
+            _sliderMaximum = max;
+            break;
+        case A_DIAL:
+            _dialMinimum = min;
+            _dialMaximum = max;
+            break;
+        case A_WHEEL:
+            _wheelMinimum = min;
+            _wheelMaximum = max;
+            break;
+        case A_HATSWITCH:
+            _hatswitchMinimum = min;
+            _hatswitchMaximum = max;
+            break;
+        case A_VX:
+            _vxMinimum = min;
+            _vxMaximum = max;
+            break;
+        case A_VY:
+            _vyMinimum = min;
+            _vyMaximum = max;
+            break;
+        case A_VZ:
+            _vzMinimum = min;
+            _vzMaximum = max;
+            break;
+        case A_VBRX:
+            _vbrxMinimum = min;
+            _vbrxMaximum = max;
+            break;
+        case A_VBRY:
+            _vbryMinimum = min;
+            _vbryMaximum = max;
+            break;
+        case A_VBRZ:
+            _vbrzMinimum = min;
+            _vbrzMaximum = max;
+            break;
+        case A_AX:
+            _axMinimum = min;
+            _axMaximum = max;
+            break;
+        case A_AY:
+            _ayMinimum = min;
+            _ayMaximum = max;
+            break;
+        case A_AZ:
+            _azMinimum = min;
+            _azMaximum = max;
+            break;
+        case A_ABRRX:
+            _abrrxMinimum = min;
+            _abrrxMaximum = max;
+            break;
+        case A_ABRRY:
+            _abrryMinimum = min;
+            _abrryMaximum = max;
+            break;
+        case A_ABRRZ:
+            _abrrzMinimum = min;
+            _abrrzMaximum = max;
+            break;
+        case A_FORCEX:
+            _forcexMinimum = min;
+            _forcexMaximum = max;
+            break;
+        case A_FORCEY:
+            _forceyMinimum = min;
+            _forceyMaximum = max;
+            break;
+        case A_FORCEZ:
+            _forcezMinimum = min;
+            _forcezMaximum = max;
+            break;
+        case A_TORQUEX:
+            _torquexMinimum = min;
+            _torquexMaximum = max;
+            break;
+        case A_TORQUEY:
+            _torqueyMinimum = min;
+            _torqueyMaximum = max;
+            break;
+        case A_TORQUEZ:
+            _torquezMinimum = min;
+            _torquezMaximum = max;
+            break;
+        case S_YAW:
+            _yawMinimum = min;
+            _yawMaximum = max;
+            break;
+        case S_PITCH:
+            _pitchMinimum = min;
+            _pitchMaximum = max;
+            break;
+        case S_ROLL:
+            _rollMinimum = min;
+            _rollMaximum = max;
+            break;
+        case S_RUDDER:
+            _rudderMinimum = min;
+            _rudderMaximum = max;
+            break;
+        case S_THROTTLE:
+            _throttleMinimum = min;
+            _throttleMaximum = max;
+            break;
+        case S_ACCELERATOR:
+            _acceleratorMinimum = min;
+            _acceleratorMaximum = max;
+            break;
+        case S_BRAKE:
+            _brakeMinimum = min;
+            _brakeMaximum = max;
+            break;
+        case S_CLUTCH:
+            _clutchMinimum = min;
+            _clutchMaximum = max;
+            break;
+        case S_HANDBRAKE:
+            _handbrakeMinimum = min;
+            _handbrakeMaximum = max;
+            break;
+        case S_STEERING:
+            _steeringMinimum = min;
+            _steeringMaximum = max;
+            break;
+        case S_TURRETX:
+            _turretxMinimum = min;
+            _turretxMaximum = max;
+            break;
+        case S_TURRETY:
+            _turretyMinimum = min;
+            _turretyMaximum = max;
+            break;
+        case S_TURRETZ:
+            _turretzMinimum = min;
+            _turretzMaximum = max;
+            break;
+        default:
+            break;
+    }
     return *this;
 }
 
@@ -606,62 +773,47 @@ Joystick_& Joystick_::includeAxis(Axis axis, bool include)
     uint32_t flag;
 
     switch (axis) {
-        case A_X:
-            flag = JOYSTICK_INCLUDE_X_AXIS; break;
-        case A_Y:
-            flag = JOYSTICK_INCLUDE_Y_AXIS; break;
-        case A_Z:
-            flag = JOYSTICK_INCLUDE_Z_AXIS; break;
-        case A_RX:
-            flag = JOYSTICK_INCLUDE_RX_AXIS; break;
-        case A_RY:
-            flag = JOYSTICK_INCLUDE_RY_AXIS; break;
-        case A_RZ:
-            flag = JOYSTICK_INCLUDE_RZ_AXIS; break;
-        case A_SLIDER:
-            flag = JOYSTICK_INCLUDE_SLIDER; break;
-        case A_DIAL:
-            flag = JOYSTICK_INCLUDE_DIAL; break;
-        case A_WHEEL:
-            flag = JOYSTICK_INCLUDE_WHEEL; break;
-        case A_HATSWITCH:
-            flag = JOYSTICK_INCLUDE_HATSWITCH; break;
-        case A_VX:
-            flag = JOYSTICK_INCLUDE_VX; break;
-        case A_VY:
-            flag = JOYSTICK_INCLUDE_VY; break;
-        case A_VZ:
-            flag = JOYSTICK_INCLUDE_VZ; break;
-        case A_VBRX:
-            flag = JOYSTICK_INCLUDE_VBRX; break;
-        case A_VBRY:
-            flag = JOYSTICK_INCLUDE_VBRY; break;
-        case A_VBRZ:
-            flag = JOYSTICK_INCLUDE_VBRZ; break;
-        case A_AX:
-            flag = JOYSTICK_INCLUDE_AX; break;
-        case A_AY:
-            flag = JOYSTICK_INCLUDE_AY; break;
-        case A_AZ:
-            flag = JOYSTICK_INCLUDE_AZ; break;
-        case A_ABRRX:
-            flag = JOYSTICK_INCLUDE_ABRRX; break;
-        case A_ABRRY:
-            flag = JOYSTICK_INCLUDE_ABRRY; break;
-        case A_ABRRZ:
-            flag = JOYSTICK_INCLUDE_ABRRZ; break;
-        case A_FORCEX:
-            flag = JOYSTICK_INCLUDE_FORCEX; break;
-        case A_FORCEY:
-            flag = JOYSTICK_INCLUDE_FORCEY; break;
-        case A_FORCEZ:
-            flag = JOYSTICK_INCLUDE_FORCEZ; break;
-        case A_TORQUEX:
-            flag = JOYSTICK_INCLUDE_TORQUEX; break;
-        case A_TORQUEY:
-            flag = JOYSTICK_INCLUDE_TORQUEY; break;
-        case A_TORQUEZ:
-            flag = JOYSTICK_INCLUDE_TORQUEZ; break;
+        case A_X:          flag = JOYSTICK_INCLUDE_X_AXIS;      break;
+        case A_Y:          flag = JOYSTICK_INCLUDE_Y_AXIS;      break;
+        case A_Z:          flag = JOYSTICK_INCLUDE_Z_AXIS;      break;
+        case A_RX:         flag = JOYSTICK_INCLUDE_RX_AXIS;     break;
+        case A_RY:         flag = JOYSTICK_INCLUDE_RY_AXIS;     break;
+        case A_RZ:         flag = JOYSTICK_INCLUDE_RZ_AXIS;     break;
+        case A_SLIDER:     flag = JOYSTICK_INCLUDE_SLIDER;      break;
+        case A_DIAL:       flag = JOYSTICK_INCLUDE_DIAL;        break;
+        case A_WHEEL:      flag = JOYSTICK_INCLUDE_WHEEL;       break;
+        case A_HATSWITCH:  flag = JOYSTICK_INCLUDE_HATSWITCH;   break;
+        case A_VX:         flag = JOYSTICK_INCLUDE_VX;          break;
+        case A_VY:         flag = JOYSTICK_INCLUDE_VY;          break;
+        case A_VZ:         flag = JOYSTICK_INCLUDE_VZ;          break;
+        case A_VBRX:       flag = JOYSTICK_INCLUDE_VBRX;        break;
+        case A_VBRY:       flag = JOYSTICK_INCLUDE_VBRY;        break;
+        case A_VBRZ:       flag = JOYSTICK_INCLUDE_VBRZ;        break;
+        case A_AX:         flag = JOYSTICK_INCLUDE_AX;          break;
+        case A_AY:         flag = JOYSTICK_INCLUDE_AY;          break;
+        case A_AZ:         flag = JOYSTICK_INCLUDE_AZ;          break;
+        case A_ABRRX:      flag = JOYSTICK_INCLUDE_ABRRX;       break;
+        case A_ABRRY:      flag = JOYSTICK_INCLUDE_ABRRY;       break;
+        case A_ABRRZ:      flag = JOYSTICK_INCLUDE_ABRRZ;       break;
+        case A_FORCEX:     flag = JOYSTICK_INCLUDE_FORCEX;      break;
+        case A_FORCEY:     flag = JOYSTICK_INCLUDE_FORCEY;      break;
+        case A_FORCEZ:     flag = JOYSTICK_INCLUDE_FORCEZ;      break;
+        case A_TORQUEX:    flag = JOYSTICK_INCLUDE_TORQUEX;     break;
+        case A_TORQUEY:    flag = JOYSTICK_INCLUDE_TORQUEY;     break;
+        case A_TORQUEZ:    flag = JOYSTICK_INCLUDE_TORQUEZ;     break;
+        case S_YAW:        flag = JOYSTICK_INCLUDE_YAW;         break;
+        case S_PITCH:      flag = JOYSTICK_INCLUDE_PITCH;       break;
+        case S_ROLL:       flag = JOYSTICK_INCLUDE_ROLL;        break;
+        case S_RUDDER:     flag = JOYSTICK_INCLUDE_RUDDER;      break;
+        case S_THROTTLE:   flag = JOYSTICK_INCLUDE_THROTTLE;    break;
+        case S_ACCELERATOR:flag = JOYSTICK_INCLUDE_ACCELERATOR; break;
+        case S_BRAKE:      flag = JOYSTICK_INCLUDE_BRAKE;       break;
+        case S_CLUTCH:     flag = JOYSTICK_INCLUDE_CLUTCH;      break;
+        case S_HANDBRAKE:  flag = JOYSTICK_INCLUDE_HANDBRAKE;   break;
+        case S_STEERING:   flag = JOYSTICK_INCLUDE_STEERING;    break;
+        case S_TURRETX:    flag = JOYSTICK_INCLUDE_TURRETX;     break;
+        case S_TURRETY:    flag = JOYSTICK_INCLUDE_TURRETY;     break;
+        case S_TURRETZ:    flag = JOYSTICK_INCLUDE_TURRETZ;     break;
         default:
             return *this;
     }
