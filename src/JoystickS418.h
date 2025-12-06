@@ -64,6 +64,50 @@
 typedef uint32_t axis_flags_t;
 typedef uint32_t simulator_flags_t;
 
+enum Axis {
+    A_X,
+    A_Y,
+    A_Z,
+    A_RX,
+    A_RY,
+    A_RZ,
+    A_SLIDER,
+    A_DIAL,
+    A_WHEEL,
+    A_HATSWITCH,
+    A_VX,
+    A_VY,
+    A_VZ,
+    A_VBRX,
+    A_VBRY,
+    A_VBRZ,
+    A_AX,
+    A_AY,
+    A_AZ,
+    A_ABRRX,
+    A_ABRRY,
+    A_ABRRZ,
+    A_FORCEX,
+    A_FORCEY,
+    A_FORCEZ,
+    A_TORQUEX,
+    A_TORQUEY,
+    A_TORQUEZ,
+    S_YAW,
+    S_PITCH,
+    S_ROLL,
+    S_RUDDER,
+    S_THROTTLE,
+    S_ACCELERATOR,
+    S_BRAKE,
+    S_CLUTCH,
+    S_HANDBRAKE,
+    S_STEERING,
+    S_TURRETX,
+    S_TURRETY,
+    S_TURRETZ
+};
+
 struct Gains{
     uint8_t totalGain         = FORCE_FEEDBACK_MAXGAIN;
     uint8_t constantGain      = FORCE_FEEDBACK_MAXGAIN;
@@ -175,6 +219,8 @@ private:
     int16_t                  _dialMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;
     int16_t                  _wheelMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;
     int16_t                  _wheelMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;
+    int16_t                  _hatswitchMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;
+    int16_t                  _hatswitchMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;
     int16_t                  _vxMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;
     int16_t                  _vxMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;
     int16_t                  _vyMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;
@@ -252,6 +298,18 @@ private:
 
     //lock data
     bool is_calculating_force = true;
+    constexpr static size_t ALL_AXES_COUNT = 41;
+    const Axis ALL_AXES[ALL_AXES_COUNT] = {
+        A_X, A_Y, A_Z, A_RX, A_RY, A_RZ,
+        A_SLIDER, A_DIAL, A_WHEEL, A_HATSWITCH,
+        A_VX, A_VY, A_VZ, A_VBRX, A_VBRY, A_VBRZ,
+        A_AX, A_AY, A_AZ, A_ABRRX, A_ABRRY, A_ABRRZ,
+        A_FORCEX, A_FORCEY, A_FORCEZ,
+        A_TORQUEX, A_TORQUEY, A_TORQUEZ,
+        S_YAW, S_PITCH, S_ROLL, S_RUDDER, S_THROTTLE,
+        S_ACCELERATOR, S_BRAKE, S_CLUTCH, S_HANDBRAKE,
+        S_STEERING, S_TURRETX, S_TURRETY, S_TURRETZ
+    };
 
     ///force calculate funtion
     float NormalizeRange(int32_t x, int32_t maxValue);
@@ -275,78 +333,21 @@ protected:
 public:
     Joystick_();
 
-    Joystick_(
-        uint8_t hidReportId,
-        uint8_t joystickType = JOYSTICK_TYPE_JOYSTICK,
-        uint8_t buttonCount = JOYSTICK_DEFAULT_BUTTON_COUNT,
-        uint8_t hatSwitchCount = JOYSTICK_DEFAULT_HATSWITCH_COUNT,
-        bool includeXAxis = true,
-        bool includeYAxis = true,
-        bool includeZAxis = true,
-        bool includeRxAxis = true,
-        bool includeRyAxis = true,
-        bool includeRzAxis = true,
-        bool includeRudder = true,
-        bool includeThrottle = true,
-        bool includeAccelerator = true,
-        bool includeBrake = true,
-        bool includeSteering = true
-    );
-
     void begin(bool initAutoSendState = true);
     void end();
 
     Joystick_& init();
 
-    // Fluent setters
     Joystick_& hidReportId(uint8_t reportId);
     Joystick_& joystickType(uint8_t type);
     Joystick_& buttonCount(uint8_t count);
     Joystick_& hatSwitchCount(uint8_t count);
 
-    // Fluent setters for axis inclusion
-    Joystick_& includeXAxis(bool include = true);
-    Joystick_& includeYAxis(bool include = true);
-    Joystick_& includeZAxis(bool include = true);
-    Joystick_& includeRxAxis(bool include = true);
-    Joystick_& includeRyAxis(bool include = true);
-    Joystick_& includeRzAxis(bool include = true);
-    Joystick_& includeSlider(bool include = true);
-    Joystick_& includeDial(bool include = true);
-    Joystick_& includeWheel(bool include = true);
-    Joystick_& includeVx(bool include = true);
-    Joystick_& includeVy(bool include = true);
-    Joystick_& includeVz(bool include = true);
-    Joystick_& includeVbrx(bool include = true);
-    Joystick_& includeVbry(bool include = true);
-    Joystick_& includeVbrz(bool include = true);
-    Joystick_& includeAx(bool include = true);
-    Joystick_& includeAy(bool include = true);
-    Joystick_& includeAz(bool include = true);
-    Joystick_& includeAbrrx(bool include = true);
-    Joystick_& includeAbrry(bool include = true);
-    Joystick_& includeAbrrz(bool include = true);
-    Joystick_& includeForcex(bool include = true);
-    Joystick_& includeForcey(bool include = true);
-    Joystick_& includeForcez(bool include = true);
-    Joystick_& includeTorquex(bool include = true);
-    Joystick_& includeTorquey(bool include = true);
-    Joystick_& includeTorquez(bool include = true);
-
-    // Fluent setters for simulator controls inclusion
-    Joystick_& includeYaw(bool include = true);
-    Joystick_& includePitch(bool include = true);
-    Joystick_& includeRoll(bool include = true);
-    Joystick_& includeRudder(bool include = true);
-    Joystick_& includeThrottle(bool include = true);
-    Joystick_& includeAccelerator(bool include = true);
-    Joystick_& includeBrake(bool include = true);
-    Joystick_& includeClutch(bool include = true);
-    Joystick_& includeHandbrake(bool include = true);
-    Joystick_& includeSteering(bool include = true);
-    Joystick_& includeTurretx(bool include = true);
-    Joystick_& includeTurrety(bool include = true);
-    Joystick_& includeTurretz(bool include = true);
+    Joystick_& Joystick_::includeAxis(Axis axis, bool include = true);
+    // todo
+    // bool Joystick_::isAxisIncluded(Axis axis);
+    Joystick_& setAxisRange(Axis axis, int16_t min, int16_t max);
+    Joystick_& Joystick_::setAxisValue(Axis axis, int16_t value, bool initOnly = false);
 
     // Set Range Functions
     inline void setXAxisRange(int16_t minimum, int16_t maximum)
@@ -640,9 +641,7 @@ public:
     void sendState();
     // get USB PID data
     void getUSBPID();
-    //force feedback Interfaces
     void getForce(int32_t* forces);
-    //set gain functions
     int8_t setGains(Gains* _gains){
         if(_gains != nullptr){
             //it should be added some limition here,but im so tired,it's 2:24 A.M now!
@@ -651,7 +650,6 @@ public:
         }
         return -1;
     };
-    //set effect params funtions
     int8_t setEffectParams(EffectParams* _effect_params){
         if(_effect_params != nullptr){
             m_effect_params = _effect_params;
@@ -662,8 +660,6 @@ public:
 };
     } // namespace JoystickFfb
 } // namespace S418
-
-
 
 #endif // !defined(_USING_DYNAMIC_HID)
 #endif // JOYSTICK_h
