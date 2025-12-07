@@ -470,6 +470,10 @@ Joystick_& Joystick_::init()
 	_hidReportSize += (axisCount * 2);
 	_hidReportSize += (simulationCount * 2);
 
+    for(uint8_t i = 0; i < ALL_AXES_COUNT; i++) {
+        _axes[i].value = 0;
+    }
+
     // Initialize Hat Switch Values
     for (int index = 0; index < JOYSTICK_HATSWITCH_COUNT_MAXIMUM; index++)
     {
@@ -523,25 +527,25 @@ uint32_t Joystick_::getFlagByAxis(Axis axis) {
         case A_SLIDER:     return JOYSTICK_INCLUDE_SLIDER;
         case A_DIAL:       return JOYSTICK_INCLUDE_DIAL;
         case A_WHEEL:      return JOYSTICK_INCLUDE_WHEEL;
-        case A_HATSWITCH:  return JOYSTICK_INCLUDE_HATSWITCH;
-        case A_VX:         return JOYSTICK_INCLUDE_VX;
-        case A_VY:         return JOYSTICK_INCLUDE_VY;
-        case A_VZ:         return JOYSTICK_INCLUDE_VZ;
-        case A_VBRX:       return JOYSTICK_INCLUDE_VBRX;
-        case A_VBRY:       return JOYSTICK_INCLUDE_VBRY;
-        case A_VBRZ:       return JOYSTICK_INCLUDE_VBRZ;
-        case A_AX:         return JOYSTICK_INCLUDE_AX;
-        case A_AY:         return JOYSTICK_INCLUDE_AY;
-        case A_AZ:         return JOYSTICK_INCLUDE_AZ;
-        case A_ABRRX:      return JOYSTICK_INCLUDE_ABRRX;
-        case A_ABRRY:      return JOYSTICK_INCLUDE_ABRRY;
-        case A_ABRRZ:      return JOYSTICK_INCLUDE_ABRRZ;
-        case A_FORCEX:     return JOYSTICK_INCLUDE_FORCEX;
-        case A_FORCEY:     return JOYSTICK_INCLUDE_FORCEY;
-        case A_FORCEZ:     return JOYSTICK_INCLUDE_FORCEZ;
-        case A_TORQUEX:    return JOYSTICK_INCLUDE_TORQUEX;
-        case A_TORQUEY:    return JOYSTICK_INCLUDE_TORQUEY;
-        case A_TORQUEZ:    return JOYSTICK_INCLUDE_TORQUEZ;
+//        case A_HATSWITCH:  return JOYSTICK_INCLUDE_HATSWITCH;
+//        case A_VX:         return JOYSTICK_INCLUDE_VX;
+//        case A_VY:         return JOYSTICK_INCLUDE_VY;
+//        case A_VZ:         return JOYSTICK_INCLUDE_VZ;
+//        case A_VBRX:       return JOYSTICK_INCLUDE_VBRX;
+//        case A_VBRY:       return JOYSTICK_INCLUDE_VBRY;
+//        case A_VBRZ:       return JOYSTICK_INCLUDE_VBRZ;
+//        case A_AX:         return JOYSTICK_INCLUDE_AX;
+//        case A_AY:         return JOYSTICK_INCLUDE_AY;
+//        case A_AZ:         return JOYSTICK_INCLUDE_AZ;
+//        case A_ABRRX:      return JOYSTICK_INCLUDE_ABRRX;
+//        case A_ABRRY:      return JOYSTICK_INCLUDE_ABRRY;
+//        case A_ABRRZ:      return JOYSTICK_INCLUDE_ABRRZ;
+//        case A_FORCEX:     return JOYSTICK_INCLUDE_FORCEX;
+//        case A_FORCEY:     return JOYSTICK_INCLUDE_FORCEY;
+//        case A_FORCEZ:     return JOYSTICK_INCLUDE_FORCEZ;
+//        case A_TORQUEX:    return JOYSTICK_INCLUDE_TORQUEX;
+//        case A_TORQUEY:    return JOYSTICK_INCLUDE_TORQUEY;
+//        case A_TORQUEZ:    return JOYSTICK_INCLUDE_TORQUEZ;
         case S_YAW:        return JOYSTICK_INCLUDE_YAW;
         case S_PITCH:      return JOYSTICK_INCLUDE_PITCH;
         case S_ROLL:       return JOYSTICK_INCLUDE_ROLL;

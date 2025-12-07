@@ -65,10 +65,11 @@ typedef uint32_t axis_flags_t;
 typedef uint32_t simulator_flags_t;
 
 enum Axis {
-    A_X,      A_Y,         A_Z,         A_RX,      A_RY,       A_RZ,          A_SLIDER,
-    A_DIAL,   A_WHEEL,     A_HATSWITCH, A_VX,      A_VY,       A_VZ,          A_VBRX,
-    A_VBRY,   A_VBRZ,      A_AX,        A_AY,      A_AZ,       A_ABRRX,       A_ABRRY,
-    A_ABRRZ,  A_FORCEX,    A_FORCEY,    A_FORCEZ,  A_TORQUEX,  A_TORQUEY,     A_TORQUEZ,
+    A_X,      A_Y,         A_Z,         A_RX,      A_RY,       A_RZ,
+    A_SLIDER, A_DIAL,   A_WHEEL,
+//    A_HATSWITCH, A_VX,      A_VY,       A_VZ,          A_VBRX,A_VBRY,   A_VBRZ,
+//    A_AX,        A_AY,      A_AZ,       A_ABRRX,       A_ABRRY,A_ABRRZ,
+//    A_FORCEX,    A_FORCEY,    A_FORCEZ,  A_TORQUEX,  A_TORQUEY,     A_TORQUEZ,
     S_YAW,    S_PITCH,     S_ROLL,      S_RUDDER,  S_THROTTLE, S_ACCELERATOR, S_BRAKE,
     S_CLUTCH, S_HANDBRAKE, S_STEERING,  S_TURRETX, S_TURRETY,  S_TURRETZ
 };
@@ -152,14 +153,13 @@ protected:
     int buildAndSetAxisValue(Axis axis, uint8_t dataLocation[]);
 
 public:
-    constexpr static size_t ALL_AXES_COUNT = 41;
+    constexpr static size_t ALL_AXES_COUNT = 22;
     const Axis ALL_AXES[ALL_AXES_COUNT] = {
         A_X, A_Y, A_Z, A_RX, A_RY, A_RZ,
-        A_SLIDER, A_DIAL, A_WHEEL, A_HATSWITCH,
-        A_VX, A_VY, A_VZ, A_VBRX, A_VBRY, A_VBRZ,
-        A_AX, A_AY, A_AZ, A_ABRRX, A_ABRRY, A_ABRRZ,
-        A_FORCEX, A_FORCEY, A_FORCEZ,
-        A_TORQUEX, A_TORQUEY, A_TORQUEZ,
+        A_SLIDER, A_DIAL, A_WHEEL,
+//        A_HATSWITCH,A_VX, A_VY, A_VZ, A_VBRX, A_VBRY, A_VBRZ,
+//        A_AX, A_AY, A_AZ, A_ABRRX, A_ABRRY, A_ABRRZ,
+//        A_FORCEX, A_FORCEY, A_FORCEZ,A_TORQUEX, A_TORQUEY, A_TORQUEZ,
         S_YAW, S_PITCH, S_ROLL, S_RUDDER, S_THROTTLE,
         S_ACCELERATOR, S_BRAKE, S_CLUTCH, S_HANDBRAKE,
         S_STEERING, S_TURRETX, S_TURRETY, S_TURRETZ
@@ -170,14 +170,15 @@ public:
         int16_t maximum;
     };
 private:
-    AxisData _axes[1];
+    AxisData _axes[ALL_AXES_COUNT];
    const static uint8_t _descriptors[ALL_AXES_COUNT] = {
-        0x30,0x31,0x32,0x33,0x34,0x35,0x36,// A
-        0x37,0x38,0x39,0x40,0x41,0x42,0x43,// A
-        0x44,0x45,0x46,0x47,0x48,0x49,0x4A,// A
-        0x4B,0x4C,0x4D,0x4E,0x4F,0x50,0x51,// A
-        0xB0,0xB1,0xB2,0xBA,0xBB,0xC4,0xC5,// S
-        0xC6,0xC7,0xC8,0xC9,0xCA,0xCB      // S
+        0x30,0x31,0x32,0x33,0x34,0x35,  // A
+        0x36,0x37,0x38,                 // A
+//        0x39,0x40,0x41,0x42,0x43,0x44,0x45, // A
+//        0x46,0x47,0x48,0x49,0x4A,0x4B,      // A
+//        0x4C,0x4D,0x4E,0x4F,0x50,0x51,      // A
+        0xB0,0xB1,0xB2,0xBA,0xBB,0xC4,0xC5, // S
+        0xC6,0xC7,0xC8,0xC9,0xCA,0xCB       // S
    };
 public:
     Joystick_();
